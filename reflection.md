@@ -14,8 +14,10 @@ The three core actions a user should be able to perform in PawPal+ are:
 
 **Initial UML design:**
 
-The initial design included three main classes:
-- `Pet` — stores pet attributes (name, species, age, care notes) and serves as the central entity other classes reference.
+The initial design included four main classes:
+
+- `Owner` — represents the pet owner, stores owner information (name, preferences) and manages their collection of pets.
+- `Pet` — stores pet attributes (name, species, age, care notes) and belongs to an owner.
 - `Task` — represents a scheduled care activity (type, assigned pet, date/time, duration, status), responsible for tracking what needs to be done and when.
 - `Scheduler` — manages the collection of tasks, handles conflict detection, and generates the daily task view for the user.
 

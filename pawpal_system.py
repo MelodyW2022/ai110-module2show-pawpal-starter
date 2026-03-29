@@ -68,6 +68,7 @@ class Pet:
         pass
 
     def add_task(self, task: Task) -> None:
+        # Single storage point for tasks — only called by Scheduler.add_task() after conflict checking
         pass
 
 
@@ -134,10 +135,12 @@ class Scheduler:
         pass
 
     def add_task(self, task: Task) -> None:
+        # Call __check_conflicts() first; if no conflict, delegate storage to task.get_assigned_pet().add_task(task)
         pass
 
     def __check_conflicts(self, task: Task, time: datetime) -> bool:
+        # Internal guard called by add_task() only — checks existing tasks across all pets for time conflicts
         pass
 
-    def generate_daily_schedule(self) -> list[Task]:
+    def generate_daily_schedule(self, date: datetime) -> list[Task]:
         pass

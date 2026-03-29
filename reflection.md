@@ -50,6 +50,10 @@ Yes, several changes were made during the design review — some suggested by AI
 
 3. **Removed `tasks` attribute from `Scheduler`** — AI identified that `Scheduler` maintaining its own flat list of tasks alongside `Pet` also storing tasks was a data sync risk. Since `Pet` owns tasks (composition), `Scheduler` now derives all tasks by navigating `owner → pets → tasks` rather than holding a duplicate list.
 
+4. **Added `date` parameter to `generate_daily_schedule()`** — AI identified that without a `date` parameter, it was unclear which day the method generates a schedule for. Added `date: datetime` to make it consistent with `get_tasks_for_day(date)`.
+
+5. **Clarified `add_task()` responsibility between `Scheduler` and `Pet`** — AI identified that both `Scheduler.add_task()` and `Pet.add_task()` being stubs created an ambiguity — if tasks could be added via `Pet` directly, conflict checking in `Scheduler` would be bypassed. Established that `Scheduler.add_task()` is the entry point (runs `__check_conflicts()` first, then delegates to `pet.add_task()`), while `Pet.add_task()` is the single storage point only called by `Scheduler`.
+
 **Changes I identified:**
 
 1. **All attributes made private** — I decided that all attributes should be private to properly enforce encapsulation, not just the ones AI initially flagged.

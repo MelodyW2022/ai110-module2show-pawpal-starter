@@ -63,7 +63,7 @@ classDiagram
         +get_tasks_for_day(date) list
         +add_task(task)
         -check_conflicts(task, time) bool
-        +generate_daily_schedule() list
+        +generate_daily_schedule(date) list
     }
 
     Owner "1" *-- "*" Pet : owns

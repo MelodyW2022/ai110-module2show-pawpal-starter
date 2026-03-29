@@ -16,10 +16,21 @@ The three core actions a user should be able to perform in PawPal+ are:
 
 The initial design included four main classes:
 
-- `Owner` — represents the pet owner, stores owner information (name, preferences) and manages their collection of pets.
-- `Pet` — stores pet attributes (name, species, age, care notes) and belongs to an owner.
-- `Task` — represents a scheduled care activity (type, assigned pet, date/time, duration, status), responsible for tracking what needs to be done and when.
-- `Scheduler` — manages the collection of tasks, handles conflict detection, and generates the daily task view for the user.
+- **`Owner`** — represents the pet owner and manages their collection of pets.
+  - **Attributes**: name (str), preferences (dict for scheduling preferences like preferred times), pets (list of Pet objects)
+  - **Methods**: add_pet(pet), get_pets(), set_preference(key, value), get_preference(key)
+
+- **`Pet`** — stores pet information and belongs to an owner.
+  - **Attributes**: name (str), species (str), age (int), care_notes (str), owner (Owner reference)
+  - **Methods**: get_care_tasks(), update_care_notes(notes), get_owner()
+
+- **`Task`** — represents a scheduled care activity for a pet.
+  - **Attributes**: title (str), duration_minutes (int), priority (str: "low"/"medium"/"high"), assigned_pet (Pet reference), scheduled_time (datetime), status (str: "pending"/"completed")
+  - **Methods**: schedule(time), complete(), get_duration(), is_completed()
+
+- **`Scheduler`** — manages task scheduling and conflict resolution.
+  - **Attributes**: owner (Owner reference), tasks (list of Task objects)
+  - **Methods**: generate_daily_schedule(), check_conflicts(task, time), add_task(task), get_tasks_for_day(date)
 
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?

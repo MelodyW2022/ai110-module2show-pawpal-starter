@@ -10,22 +10,28 @@ class Owner:
         self.__pets: list[Pet] = []
 
     def get_name(self) -> str:
-        pass
+        """Return the owner's name."""
+        return self.__name
 
     def set_name(self, name: str) -> None:
-        pass
+        """Update the owner's name."""
+        self.__name = name
 
     def get_preference(self, key: str):
-        pass
+        """Return the preference value for the given key, or None if not set."""
+        return self.__preferences.get(key)
 
     def set_preference(self, key: str, value) -> None:
-        pass
+        """Set or update a preference key-value pair."""
+        self.__preferences[key] = value
 
     def get_pets(self) -> list[Pet]:
-        pass
+        """Return all pets belonging to this owner."""
+        return self.__pets
 
     def add_pet(self, pet: Pet) -> None:
-        pass
+        """Add a pet to this owner's pet list."""
+        self.__pets.append(pet)
 
 
 @dataclass
@@ -38,38 +44,49 @@ class Pet:
     _tasks: list[Task] = field(default_factory=list)
 
     def get_name(self) -> str:
-        pass
+        """Return the pet's name."""
+        return self._name
 
     def set_name(self, name: str) -> None:
-        pass
+        """Update the pet's name."""
+        self._name = name
 
     def get_species(self) -> str:
-        pass
+        """Return the pet's species."""
+        return self._species
 
     def get_age(self) -> int:
-        pass
+        """Return the pet's age."""
+        return self._age
 
     def set_age(self, age: int) -> None:
-        pass
+        """Update the pet's age."""
+        self._age = age
 
     def get_care_notes(self) -> str:
-        pass
+        """Return the pet's care notes."""
+        return self._care_notes
 
     def update_care_notes(self, notes: str) -> None:
-        pass
+        """Replace the pet's care notes with new text."""
+        self._care_notes = notes
 
     def get_owner(self) -> Owner:
-        pass
+        """Return the owner responsible for this pet."""
+        return self._owner
 
     def set_owner(self, owner: Owner) -> None:
-        pass
+        """Reassign this pet to a different owner."""
+        self._owner = owner
 
     def get_care_tasks(self) -> list[Task]:
-        pass
+        """Return all tasks assigned to this pet."""
+        return self._tasks
 
     def add_task(self, task: Task) -> None:
         # Single storage point for tasks — only called by Scheduler.add_task() after conflict checking
-        pass
+        """Append a task to this pet's task list."""
+        self._tasks.append(task)
 
 
 @dataclass
@@ -82,43 +99,56 @@ class Task:
     _status: str = "pending"
 
     def get_title(self) -> str:
-        pass
+        """Return the task title."""
+        return self._title
 
     def set_title(self, title: str) -> None:
-        pass
+        """Update the task title."""
+        self._title = title
 
     def get_priority(self) -> str:
-        pass
+        """Return the task priority level."""
+        return self._priority
 
     def set_priority(self, priority: str) -> None:
-        pass
+        """Update the task priority level."""
+        self._priority = priority
 
     def get_duration(self) -> int:
-        pass
+        """Return the task duration in minutes."""
+        return self._duration_minutes
 
     def set_duration(self, minutes: int) -> None:
-        pass
+        """Update the task duration in minutes."""
+        self._duration_minutes = minutes
 
     def get_assigned_pet(self) -> Pet:
-        pass
+        """Return the pet this task is assigned to."""
+        return self._assigned_pet
 
     def set_assigned_pet(self, pet: Pet) -> None:
-        pass
+        """Reassign this task to a different pet."""
+        self._assigned_pet = pet
 
     def get_scheduled_time(self) -> datetime:
-        pass
+        """Return the datetime this task is scheduled for."""
+        return self._scheduled_time
 
     def schedule(self, time: datetime) -> None:
-        pass
+        """Set or update the scheduled datetime for this task."""
+        self._scheduled_time = time
 
     def get_status(self) -> str:
-        pass
+        """Return the current completion status of the task."""
+        return self._status
 
     def complete(self) -> None:
-        pass
+        """Mark this task as completed."""
+        self._status = "completed"
 
     def is_completed(self) -> bool:
-        pass
+        """Return True if the task has been completed."""
+        return self._status == "completed"
 
 
 class Scheduler:
@@ -132,15 +162,35 @@ class Scheduler:
         pass
 
     def get_tasks_for_day(self, date: datetime) -> list[Task]:
-        pass
+        """Return all tasks across all pets scheduled on the given date."""
+        result = []
+        for pet in self.__owner.get_pets():
+            for task in pet.get_care_tasks():
+                if task.get_scheduled_time().date() == date.date():
+                    result.append(task)
+        return result
 
     def add_task(self, task: Task) -> None:
         # Call __check_conflicts() first; if no conflict, delegate storage to task.get_assigned_pet().add_task(task)
-        pass
+        """Add a task to its assigned pet after checking for scheduling conflicts."""
+        if not self.__check_conflicts(task, task.get_scheduled_time()):
+            task.get_assigned_pet().add_task(task)
 
     def __check_conflicts(self, task: Task, time: datetime) -> bool:
         # Internal guard called by add_task() only — checks existing tasks across all pets for time conflicts
-        pass
+        """Return True if any existing task overlaps with the given task's time slot."""
+        for pet in self.__owner.get_pets():
+            for existing in pet.get_care_tasks():
+                existing_start = existing.get_scheduled_time()
+                existing_start_minutes = existing_start.timestamp() / 60
+                existing_end_minutes = existing_start_minutes + existing.get_duration()
+                new_start_minutes = time.timestamp() / 60
+                new_end_minutes = new_start_minutes + task.get_duration()
+                if not (new_end_minutes <= existing_start_minutes or
+                        new_start_minutes >= existing_end_minutes):
+                    return True
+        return False
 
     def generate_daily_schedule(self, date: datetime) -> list[Task]:
-        pass
+        """Return tasks for the given date sorted by scheduled time."""
+        return sorted(self.get_tasks_for_day(date), key=lambda t: t.get_scheduled_time())

@@ -30,12 +30,12 @@ class Owner:
 
 @dataclass
 class Pet:
-    __name: str
-    __species: str
-    __age: int
-    __care_notes: str
-    __owner: Owner
-    __tasks: list[Task] = field(default_factory=list)
+    _name: str
+    _species: str
+    _age: int
+    _care_notes: str
+    _owner: Owner
+    _tasks: list[Task] = field(default_factory=list)
 
     def get_name(self) -> str:
         pass
@@ -73,12 +73,12 @@ class Pet:
 
 @dataclass
 class Task:
-    __title: str
-    __priority: str
-    __duration_minutes: int
-    __assigned_pet: Pet
-    __scheduled_time: datetime
-    __status: str = "pending"
+    _title: str
+    _priority: str
+    _duration_minutes: int
+    _assigned_pet: Pet
+    _scheduled_time: datetime
+    _status: str = "pending"
 
     def get_title(self) -> str:
         pass
@@ -123,7 +123,6 @@ class Task:
 class Scheduler:
     def __init__(self, owner: Owner):
         self.__owner: Owner = owner
-        self.__tasks: list[Task] = []
 
     def get_owner(self) -> Owner:
         pass

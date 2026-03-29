@@ -58,7 +58,6 @@ classDiagram
 
     class Scheduler {
         -owner: Owner
-        -tasks: list~Task~
         +get_owner() Owner
         +set_owner(owner)
         +get_tasks_for_day(date) list
@@ -70,5 +69,4 @@ classDiagram
     Owner "1" *-- "*" Pet : owns
     Pet "1" *-- "*" Task : has
     Scheduler "1" --> "1" Owner : manages
-    Scheduler "1" --> "*" Task : schedules
 ```

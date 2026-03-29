@@ -4,6 +4,21 @@
 
 **a. Initial design**
 
+The three core actions a user should be able to perform in PawPal+ are:
+
+1. **Add a pet** — A user can register a pet by providing details such as the pet's name, species, age, and any special care notes. This action creates a Pet record in the system that all other features (scheduling, tasks) are built around.
+
+2. **Schedule a walk** — A user can create a walk event for a specific pet by choosing a date, time, and duration. The scheduler checks for conflicts and assigns the walk to an available time slot, ensuring the pet's exercise needs are met consistently.
+
+3. **See today's tasks** — A user can view a consolidated list of all care tasks due today across all their pets (walks, feedings, vet appointments, etc.). This gives the owner a clear daily overview so nothing is missed.
+
+**Initial UML design:**
+
+The initial design included three main classes:
+- `Pet` — stores pet attributes (name, species, age, care notes) and serves as the central entity other classes reference.
+- `Task` — represents a scheduled care activity (type, assigned pet, date/time, duration, status), responsible for tracking what needs to be done and when.
+- `Scheduler` — manages the collection of tasks, handles conflict detection, and generates the daily task view for the user.
+
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
 

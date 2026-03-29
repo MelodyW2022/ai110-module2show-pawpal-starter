@@ -14,31 +14,67 @@ The three core actions a user should be able to perform in PawPal+ are:
 
 **Initial UML design:**
 
-The initial design included four main classes:
-
-- **`Owner`** — represents the pet owner and manages their collection of pets.
-  - **Attributes**: name (str), preferences (dict for scheduling preferences like preferred times), pets (list of Pet objects)
-  - **Methods**: add_pet(pet), get_pets(), set_preference(key, value), get_preference(key)
-
-- **`Pet`** — stores pet information and belongs to an owner.
-  - **Attributes**: name (str), species (str), age (int), care_notes (str), owner (Owner reference)
-  - **Methods**: get_care_tasks(), update_care_notes(notes), get_owner()
-
-- **`Task`** — represents a scheduled care activity for a pet.
-  - **Attributes**: title (str), duration_minutes (int), priority (str: "low"/"medium"/"high"), assigned_pet (Pet reference), scheduled_time (datetime), status (str: "pending"/"completed")
-  - **Methods**: schedule(time), complete(), get_duration(), is_completed()
-
-- **`Scheduler`** — manages task scheduling and conflict resolution.
-  - **Attributes**: owner (Owner reference), tasks (list of Task objects)
-  - **Methods**: generate_daily_schedule(), check_conflicts(task, time), add_task(task), get_tasks_for_day(date)
-
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
+
+The initial design included four main classes. All attributes are private (encapsulated) and accessed through public getters and setters. Setters are only added where external modification makes sense; attributes controlled by dedicated methods do not have raw setters.
+
+- **`Owner`** — represents the pet owner and manages their collection of pets.
+  - **Attributes** (all private): `name` (str), `preferences` (dict), `pets` (list of Pet)
+  - **Methods**:
+    - `get_name()`, `set_name(name)`
+    - `get_preference(key)`, `set_preference(key, value)`
+    - `get_pets()`, `add_pet(pet)` — `pets` has no raw setter; `add_pet()` controls all additions
+
+- **`Pet`** — stores pet information, belongs to an owner, and owns a collection of tasks.
+  - **Attributes** (all private): `name` (str), `species` (str), `age` (int), `care_notes` (str), `owner` (Owner), `tasks` (list of Task)
+  - **Methods**:
+    - `get_name()`, `set_name(name)`
+    - `get_species()` — species never changes, no setter
+    - `get_age()`, `set_age(age)`
+    - `get_care_notes()`, `update_care_notes(notes)` — dedicated method acts as setter
+    - `get_owner()`, `set_owner(owner)`
+    - `get_care_tasks()`, `add_task(task)` — `tasks` has no raw setter
+
+- **`Task`** — represents a scheduled care activity for a pet.
+  - **Attributes** (all private): `title` (str), `priority` (str: "low"/"medium"/"high"), `duration_minutes` (int), `assigned_pet` (Pet), `scheduled_time` (datetime), `status` (str: "pending"/"completed")
+  - **Methods**:
+    - `get_title()`, `set_title(title)`
+    - `get_priority()`, `set_priority(priority)`
+    - `get_duration()`, `set_duration(minutes)`
+    - `get_assigned_pet()`, `set_assigned_pet(pet)`
+    - `get_scheduled_time()`, `schedule(time)` — dedicated method acts as setter
+    - `get_status()`, `complete()` — status controlled via `complete()` to enforce valid transitions; `is_completed()` for boolean check
+
+- **`Scheduler`** — manages task scheduling and conflict resolution for an owner.
+  - **Attributes** (all private): `owner` (Owner), `tasks` (list of Task)
+  - **Methods**:
+    - `get_owner()`, `set_owner(owner)`
+    - `get_tasks_for_day(date)`, `add_task(task)`, `__check_conflicts(task, time)` (private — internal guard called inside `add_task()`)
+    - `generate_daily_schedule()` — higher-level operation that produces the full day's schedule
 
 **b. Design changes**
 
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
+
+Yes, several changes were made during the design review — some suggested by AI, others identified by me.
+
+**Changes suggested by AI:**
+
+1. **Added getters and setters** — Once attributes were made private, AI raised that other classes would have no way to access them without public methods. Getters were added for all attributes. Setters were added only where external modification is valid — attributes already controlled by dedicated methods (e.g., `status` via `complete()`, `care_notes` via `update_care_notes()`) did not get raw setters to avoid bypassing business logic.
+
+2. **`check_conflicts` made private** — AI suggested making it private since it is an internal guard called only inside `add_task()`. This prevents callers from bypassing the conflict check by calling `add_task()` without it. I questioned this and AI explained the reasoning, which I accepted.
+
+3. **Relationship types refined to composition** — AI identified that `Owner → Pet` and `Pet → Task` are composition relationships (the child cannot exist without the parent), represented as `*--` in Mermaid, while `Scheduler → Owner` and `Scheduler → Task` remain associations (`-->`) since Scheduler references but does not own them.
+
+**Changes I identified:**
+
+1. **All attributes made private** — I decided that all attributes should be private to properly enforce encapsulation, not just the ones AI initially flagged.
+
+2. **Added `tasks` attribute and `add_task()` to `Pet`** — I noticed that `Owner` holds a list of `Pet` objects, but `Pet` had no corresponding `tasks` list despite owning Tasks in a composition relationship. I added `-tasks: list[Task]` and `+add_task(task)` to `Pet` to mirror the Owner→Pet pattern consistently.
+
+3. **Added setters for `Task.assigned_pet` and `Scheduler.owner`** — AI initially omitted setters for these, but I challenged this. A task could be reassigned to a different pet, and a scheduler may need to switch owners for flexibility. After discussion, setters were added for both.
 
 ---
 

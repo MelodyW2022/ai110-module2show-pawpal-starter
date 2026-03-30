@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class Owner:
@@ -97,6 +97,7 @@ class Task:
     _assigned_pet: Pet
     _scheduled_time: datetime
     _status: str = "pending"
+    _frequency: str = "none"
 
     def get_title(self) -> str:
         """Return the task title."""
@@ -150,6 +151,14 @@ class Task:
         """Return True if the task has been completed."""
         return self._status == "completed"
 
+    def get_frequency(self) -> str:
+        """Return the recurrence frequency: 'none', 'daily', or 'weekly'."""
+        return self._frequency
+
+    def set_frequency(self, frequency: str) -> None:
+        """Set the recurrence frequency: 'none', 'daily', or 'weekly'."""
+        self._frequency = frequency
+
 
 class Scheduler:
     def __init__(self, owner: Owner):
@@ -194,6 +203,29 @@ class Scheduler:
     def generate_daily_schedule(self, date: datetime) -> list[Task]:
         """Return tasks for the given date sorted by scheduled time."""
         return sorted(self.get_tasks_for_day(date), key=lambda t: t.get_scheduled_time())
+
+    def mark_task_complete(self, task: Task) -> Task | None:
+        """Mark a task complete and auto-schedule the next occurrence if recurring.
+
+        Returns the newly created Task if one was created, otherwise None.
+        """
+        task.complete()
+        if task.get_frequency() == "daily":
+            delta = timedelta(days=1)
+        elif task.get_frequency() == "weekly":
+            delta = timedelta(weeks=1)
+        else:
+            return None
+        next_task = Task(
+            _title=task.get_title(),
+            _priority=task.get_priority(),
+            _duration_minutes=task.get_duration(),
+            _assigned_pet=task.get_assigned_pet(),
+            _scheduled_time=task.get_scheduled_time() + delta,
+            _frequency=task.get_frequency(),
+        )
+        self.add_task(next_task)
+        return next_task
 
     def sort_by_time(self, tasks: list[Task]) -> list[Task]:
         """Return a new list of tasks sorted by scheduled time (earliest first)."""

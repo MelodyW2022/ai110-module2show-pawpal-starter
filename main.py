@@ -54,6 +54,23 @@ for task in [walk, feed_buddy, feed_whiskers, groom]:
 walk.complete()
 feed_buddy.complete()
 
+# --- Recurring Task Demo ---
+evening_feed = Task(
+    "Evening Feed",
+    "high",
+    10,
+    buddy,
+    today.replace(hour=18, minute=0, second=0, microsecond=0),
+    _frequency="daily",
+)
+scheduler.add_task(evening_feed)
+
+print("\n--- Recurring Task: mark complete and auto-schedule next ---")
+next_task = scheduler.mark_task_complete(evening_feed)
+if next_task:
+    print(f"  '{evening_feed.get_title()}' completed.")
+    print(f"  Next occurrence auto-scheduled: {next_task.get_scheduled_time().strftime('%b %d, %Y %I:%M %p')}")
+
 # --- Sorting and Filtering Demo ---
 all_tasks = []
 for pet in owner.get_pets():
@@ -62,15 +79,15 @@ for pet in owner.get_pets():
 print("\n--- Filter: Buddy's tasks only ---")
 buddy_tasks = scheduler.filter_by_pet(all_tasks, "Buddy")
 for t in scheduler.sort_by_time(buddy_tasks):
-    print(f"  {t.get_scheduled_time().strftime('%I:%M %p')}  {t.get_title()}")
+    print(f"  {t.get_scheduled_time().strftime('%b %d, %Y %I:%M %p')}  {t.get_title()}")
 
 print("\n--- Filter: completed tasks ---")
 for t in scheduler.sort_by_time(scheduler.filter_by_status(all_tasks, "completed")):
-    print(f"  {t.get_title()} ({t.get_assigned_pet().get_name()}) — {t.get_status()}")
+    print(f"  {t.get_scheduled_time().strftime('%b %d, %Y %I:%M %p')}  {t.get_title()} ({t.get_assigned_pet().get_name()}) — {t.get_status()}")
 
 print("\n--- Filter: pending tasks ---")
 for t in scheduler.sort_by_time(scheduler.filter_by_status(all_tasks, "pending")):
-    print(f"  {t.get_title()} ({t.get_assigned_pet().get_name()}) — {t.get_status()}")
+    print(f"  {t.get_scheduled_time().strftime('%b %d, %Y %I:%M %p')}  {t.get_title()} ({t.get_assigned_pet().get_name()}) — {t.get_status()}")
 
 # --- Print Today's Schedule ---
 schedule = scheduler.generate_daily_schedule(today)

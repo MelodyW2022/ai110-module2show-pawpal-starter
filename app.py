@@ -112,19 +112,18 @@ else:
 
 st.divider()
 
+# --- Generate Schedule ---
 st.subheader("Build Schedule")
-st.caption("This button should call your scheduling logic once you implement it.")
 
 if st.button("Generate schedule"):
-    st.warning(
-        "Not implemented yet. Next step: create your scheduling logic (classes/functions) and call it here."
-    )
-    st.markdown(
-        """
-Suggested approach:
-1. Design your UML (draft).
-2. Create class stubs (no logic).
-3. Implement scheduling behavior.
-4. Connect your scheduler here and display results.
-"""
-    )
+    schedule = st.session_state.scheduler.generate_daily_schedule(datetime.today())
+    if schedule:
+        st.success(f"Schedule for today ({datetime.today().strftime('%A, %B %d')}):")
+        for task in schedule:
+            st.markdown(
+                f"- **{task.get_scheduled_time().strftime('%I:%M %p')}** — "
+                f"{task.get_title()} ({task.get_duration()} min, priority: {task.get_priority()}) "
+                f"for **{task.get_assigned_pet().get_name()}**"
+            )
+    else:
+        st.info("No tasks scheduled for today. Add some tasks above.")

@@ -50,3 +50,30 @@ PawPal+ includes algorithmic features that make scheduling more intelligent:
 - **Filtering** — Tasks can be filtered by pet name (`filter_by_pet()`) or completion status (`filter_by_status()`), making it easy to view only what's relevant.
 - **Recurring tasks** — Tasks can be marked as `"daily"` or `"weekly"`. When completed via `Scheduler.mark_task_complete()`, the next occurrence is automatically scheduled using Python's `timedelta`.
 - **Conflict detection** — `Scheduler.add_task()` checks all existing tasks across all pets for time overlaps before adding a new task. If a conflict is found, a descriptive warning message is returned instead of silently skipping or crashing.
+
+## Testing PawPal+
+
+### How to run tests
+
+```bash
+python -m pytest tests/test_pawpal.py -v
+```
+
+### What the tests cover
+
+| Test | What it verifies |
+|------|-----------------|
+| `test_task_completion_changes_status` | `complete()` flips status from `pending` to `completed` |
+| `test_add_task_increases_pet_task_count` | Adding a task to a pet increments its task list |
+| `test_sort_by_time_returns_chronological_order` | `sort_by_time()` returns tasks earliest-first regardless of insertion order |
+| `test_generate_daily_schedule_is_sorted` | `generate_daily_schedule()` returns today's tasks in time order |
+| `test_daily_task_schedules_next_day` | Completing a daily task auto-creates the next occurrence 1 day later |
+| `test_weekly_task_schedules_next_week` | Completing a weekly task auto-creates the next occurrence 7 days later |
+| `test_non_recurring_task_returns_none` | Completing a one-time task returns `None` (no follow-up created) |
+| `test_add_task_detects_overlap` | Overlapping tasks trigger a `CONFLICT` warning and are not added |
+| `test_add_task_no_conflict_when_sequential` | Back-to-back tasks with no overlap are both added successfully |
+| `test_scheduler_handles_pet_with_no_tasks` | A pet with zero tasks does not crash `generate_daily_schedule` |
+
+### Confidence level
+
+★★★★★ — All 10 tests pass. Core behaviors (sorting, recurrence, conflict detection) and edge cases (empty task list, non-recurring tasks) are verified.

@@ -96,7 +96,12 @@ else:
     with col3:
         priority = st.selectbox("Priority", ["low", "medium", "high"], index=2)
 
-    task_time = st.time_input("Scheduled time", value=datetime.now().replace(hour=8, minute=0, second=0, microsecond=0).time())
+    col4, col5 = st.columns(2)
+    with col4:
+        task_time = st.time_input("Scheduled time", value=datetime.now().replace(hour=8, minute=0, second=0, microsecond=0).time())
+    with col5:
+        frequency = st.selectbox("Recurrence", ["none", "daily", "weekly"])
+
     task_datetime = datetime.combine(datetime.today(), task_time)
 
     if st.button("Add task"):
@@ -106,9 +111,13 @@ else:
             _duration_minutes=int(duration),
             _assigned_pet=selected_pet,
             _scheduled_time=task_datetime,
+            _frequency=frequency,
         )
-        st.session_state.scheduler.add_task(new_task)
-        st.success(f"Task '{task_title}' added for {selected_pet_name} at {task_time}.")
+        result = st.session_state.scheduler.add_task(new_task)
+        if result == "ok":
+            st.success(f"Task '{task_title}' added for {selected_pet_name} at {task_time}.")
+        else:
+            st.warning(result)
 
 st.divider()
 
@@ -118,12 +127,18 @@ st.subheader("Build Schedule")
 if st.button("Generate schedule"):
     schedule = st.session_state.scheduler.generate_daily_schedule(datetime.today())
     if schedule:
-        st.success(f"Schedule for today ({datetime.today().strftime('%A, %B %d')}):")
+        st.success(f"Schedule for today ({datetime.today().strftime('%A, %B %d')}) — {len(schedule)} task(s), sorted by time:")
+        rows = []
         for task in schedule:
-            st.markdown(
-                f"- **{task.get_scheduled_time().strftime('%I:%M %p')}** — "
-                f"{task.get_title()} ({task.get_duration()} min, priority: {task.get_priority()}) "
-                f"for **{task.get_assigned_pet().get_name()}**"
-            )
+            rows.append({
+                "Time": task.get_scheduled_time().strftime("%I:%M %p"),
+                "Task": task.get_title(),
+                "Pet": task.get_assigned_pet().get_name(),
+                "Duration (min)": task.get_duration(),
+                "Priority": task.get_priority(),
+                "Recurrence": task.get_frequency(),
+                "Status": task.get_status(),
+            })
+        st.table(rows)
     else:
         st.info("No tasks scheduled for today. Add some tasks above.")

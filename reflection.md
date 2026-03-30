@@ -73,12 +73,22 @@ Yes, several changes were made during the design review — some suggested by AI
 **a. Constraints and priorities**
 
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
+
+  The scheduler considers two constraints: **time** (no two tasks can overlap in the same time window) and **recurrence** (daily/weekly frequency determines when the next occurrence is scheduled). Priority is stored on each task and used for display and filtering but is not used to auto-resolve conflicts or reorder tasks — that was a deliberate scope decision.
+
 - How did you decide which constraints mattered most?
+
+  Time was chosen as the most important constraint because it is the hard requirement: two care activities physically cannot happen simultaneously. Priority is softer — a high-priority task being scheduled late is still valid, whereas two tasks at the same time is always invalid.
 
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
+
+  The scheduler checks for time overlaps across **all pets**, not just the pet being assigned the task. This means if Buddy has a task at 8:00 AM, you cannot schedule Whiskers at 8:05 AM either — even though a real owner could theoretically handle two short tasks close together or delegate one.
+
 - Why is that tradeoff reasonable for this scenario?
+
+  This is reasonable for a single-owner app because the owner is the only caregiver. It is simpler and safer to over-block than to allow overlaps that could cause the owner to miss a task. If multi-caregiver support were added later, the conflict scope could be narrowed to per-pet.
 
 ---
 

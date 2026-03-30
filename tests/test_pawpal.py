@@ -72,9 +72,29 @@ def test_sort_by_time_returns_chronological_order(pet, scheduler):
     assert sorted_tasks[2].get_title() == "Walk"
 
 
-# --- Test 4: generate_daily_schedule is sorted ---
-def test_generate_daily_schedule_is_sorted(pet, scheduler):
-    """generate_daily_schedule should return today's tasks in time order."""
+# --- Test 4a: Priority-based sorting ---
+def test_generate_daily_schedule_sorts_by_priority_then_time(pet, scheduler):
+    """High priority tasks should appear before lower priority tasks, with time as tiebreaker."""
+    base = datetime.now().replace(hour=8, minute=0, second=0, microsecond=0)
+
+    t_low    = Task("Grooming", "low",    15, pet, base)                         # low,    08:00
+    t_high   = Task("Feed",     "high",   10, pet, base + timedelta(hours=1))    # high,   09:00
+    t_medium = Task("Walk",     "medium", 20, pet, base + timedelta(minutes=30)) # medium, 08:30
+
+    scheduler.add_task(t_low)
+    scheduler.add_task(t_high)
+    scheduler.add_task(t_medium)
+
+    schedule = scheduler.generate_daily_schedule(base)
+
+    assert schedule[0].get_title() == "Feed"      # high
+    assert schedule[1].get_title() == "Walk"      # medium
+    assert schedule[2].get_title() == "Grooming"  # low
+
+
+# --- Test 4b: Time sorting when priorities are equal ---
+def test_generate_daily_schedule_sorts_by_time_when_priority_equal(pet, scheduler):
+    """When tasks share the same priority, they should be sorted by scheduled time."""
     base = datetime.now().replace(hour=7, minute=0, second=0, microsecond=0)
 
     t1 = Task("Dinner",    "high", 10, pet, base + timedelta(hours=5))

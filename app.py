@@ -102,6 +102,7 @@ if st.button("Generate schedule"):
     schedule = st.session_state.scheduler.generate_daily_schedule(datetime.today())
     if schedule:
         st.success(f"Schedule for today ({datetime.today().strftime('%A, %B %d')}) — {len(schedule)} task(s), sorted by time:")
+        priority_emoji = {"high": "🔴 high", "medium": "🟡 medium", "low": "🟢 low"}
         rows = []
         for task in schedule:
             rows.append({
@@ -109,7 +110,7 @@ if st.button("Generate schedule"):
                 "Task": task.get_title(),
                 "Pet": task.get_assigned_pet().get_name(),
                 "Duration (min)": task.get_duration(),
-                "Priority": task.get_priority(),
+                "Priority": priority_emoji.get(task.get_priority(), task.get_priority()),
                 "Recurrence": task.get_frequency(),
                 "Status": task.get_status(),
             })

@@ -211,8 +211,12 @@ class Scheduler:
         return None
 
     def generate_daily_schedule(self, date: datetime) -> list[Task]:
-        """Return tasks for the given date sorted by scheduled time."""
-        return sorted(self.get_tasks_for_day(date), key=lambda t: t.get_scheduled_time())
+        """Return tasks for the given date sorted by priority (high first), then by scheduled time."""
+        priority_order = {"high": 0, "medium": 1, "low": 2}
+        return sorted(
+            self.get_tasks_for_day(date),
+            key=lambda t: (priority_order.get(t.get_priority(), 3), t.get_scheduled_time())
+        )
 
     def mark_task_complete(self, task: Task) -> Task | None:
         """Mark a task complete and auto-schedule the next occurrence if recurring.

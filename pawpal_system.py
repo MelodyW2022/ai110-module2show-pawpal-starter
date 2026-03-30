@@ -179,26 +179,36 @@ class Scheduler:
                     result.append(task)
         return result
 
-    def add_task(self, task: Task) -> None:
-        # Call __check_conflicts() first; if no conflict, delegate storage to task.get_assigned_pet().add_task(task)
-        """Add a task to its assigned pet after checking for scheduling conflicts."""
-        if not self.__check_conflicts(task, task.get_scheduled_time()):
-            task.get_assigned_pet().add_task(task)
+    def add_task(self, task: Task) -> str:
+        """Add a task to its assigned pet after checking for scheduling conflicts.
 
-    def __check_conflicts(self, task: Task, time: datetime) -> bool:
-        # Internal guard called by add_task() only — checks existing tasks across all pets for time conflicts
-        """Return True if any existing task overlaps with the given task's time slot."""
+        Returns 'ok' if added, or a warning message string if a conflict was detected.
+        """
+        conflicting = self.__get_conflicting_task(task, task.get_scheduled_time())
+        if conflicting:
+            fmt = "%b %d, %Y %I:%M %p"
+            return (
+                f"CONFLICT: '{task.get_title()}' "
+                f"({task.get_scheduled_time().strftime(fmt)}, {task.get_duration()} min) "
+                f"overlaps with '{conflicting.get_title()}' "
+                f"({conflicting.get_scheduled_time().strftime(fmt)}, {conflicting.get_duration()} min) "
+                f"for {task.get_assigned_pet().get_name()} — task not added"
+            )
+        task.get_assigned_pet().add_task(task)
+        return "ok"
+
+    def __get_conflicting_task(self, task: Task, time: datetime) -> Task | None:
+        """Return the first existing task that overlaps with the given task's time slot, or None."""
         for pet in self.__owner.get_pets():
             for existing in pet.get_care_tasks():
-                existing_start = existing.get_scheduled_time()
-                existing_start_minutes = existing_start.timestamp() / 60
+                existing_start_minutes = existing.get_scheduled_time().timestamp() / 60
                 existing_end_minutes = existing_start_minutes + existing.get_duration()
                 new_start_minutes = time.timestamp() / 60
                 new_end_minutes = new_start_minutes + task.get_duration()
                 if not (new_end_minutes <= existing_start_minutes or
                         new_start_minutes >= existing_end_minutes):
-                    return True
-        return False
+                    return existing
+        return None
 
     def generate_daily_schedule(self, date: datetime) -> list[Task]:
         """Return tasks for the given date sorted by scheduled time."""

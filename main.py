@@ -54,6 +54,18 @@ for task in [walk, feed_buddy, feed_whiskers, groom]:
 walk.complete()
 feed_buddy.complete()
 
+# --- Conflict Detection Demo ---
+conflicting_task = Task(
+    "Vet Appointment",
+    "high",
+    20,
+    buddy,
+    today.replace(hour=8, minute=5, second=0, microsecond=0),
+)
+result = scheduler.add_task(conflicting_task)
+print(f"\n--- Conflict Detection ---")
+print(f"  {result}")
+
 # --- Recurring Task Demo ---
 evening_feed = Task(
     "Evening Feed",
@@ -68,8 +80,9 @@ scheduler.add_task(evening_feed)
 print("\n--- Recurring Task: mark complete and auto-schedule next ---")
 next_task = scheduler.mark_task_complete(evening_feed)
 if next_task:
-    print(f"  '{evening_feed.get_title()}' completed.")
-    print(f"  Next occurrence auto-scheduled: {next_task.get_scheduled_time().strftime('%b %d, %Y %I:%M %p')}")
+    fmt = "%b %d, %Y %I:%M %p"
+    print(f"  '{evening_feed.get_title()}' completed — {evening_feed.get_scheduled_time().strftime(fmt)}, {evening_feed.get_duration()} min")
+    print(f"  Next occurrence auto-scheduled: {next_task.get_scheduled_time().strftime(fmt)}, {next_task.get_duration()} min")
 
 # --- Sorting and Filtering Demo ---
 all_tasks = []
@@ -79,15 +92,16 @@ for pet in owner.get_pets():
 print("\n--- Filter: Buddy's tasks only ---")
 buddy_tasks = scheduler.filter_by_pet(all_tasks, "Buddy")
 for t in scheduler.sort_by_time(buddy_tasks):
-    print(f"  {t.get_scheduled_time().strftime('%b %d, %Y %I:%M %p')}  {t.get_title()}")
+    status = "[x]" if t.is_completed() else "[ ]"
+    print(f"  {status} {t.get_scheduled_time().strftime('%b %d, %Y %I:%M %p')}  [{t.get_priority().upper()}]  {t.get_title()} ({t.get_assigned_pet().get_name()})  — {t.get_duration()} min")
 
 print("\n--- Filter: completed tasks ---")
 for t in scheduler.sort_by_time(scheduler.filter_by_status(all_tasks, "completed")):
-    print(f"  {t.get_scheduled_time().strftime('%b %d, %Y %I:%M %p')}  {t.get_title()} ({t.get_assigned_pet().get_name()}) — {t.get_status()}")
+    print(f"  [x] {t.get_scheduled_time().strftime('%b %d, %Y %I:%M %p')}  [{t.get_priority().upper()}]  {t.get_title()} ({t.get_assigned_pet().get_name()})  — {t.get_duration()} min")
 
 print("\n--- Filter: pending tasks ---")
 for t in scheduler.sort_by_time(scheduler.filter_by_status(all_tasks, "pending")):
-    print(f"  {t.get_scheduled_time().strftime('%b %d, %Y %I:%M %p')}  {t.get_title()} ({t.get_assigned_pet().get_name()}) — {t.get_status()}")
+    print(f"  [ ] {t.get_scheduled_time().strftime('%b %d, %Y %I:%M %p')}  [{t.get_priority().upper()}]  {t.get_title()} ({t.get_assigned_pet().get_name()})  — {t.get_duration()} min")
 
 # --- Print Today's Schedule ---
 schedule = scheduler.generate_daily_schedule(today)

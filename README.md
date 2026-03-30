@@ -98,19 +98,19 @@ python -m pytest tests/test_pawpal.py -v
 
 ### What the tests cover
 
-| Test                                                       | What it verifies                                                            |
-| ---------------------------------------------------------- | --------------------------------------------------------------------------- |
-| `test_task_completion_changes_status`                      | `complete()` flips status from `pending` to `completed`                     |
-| `test_add_task_increases_pet_task_count`                   | Adding a task to a pet increments its task list                             |
-| `test_sort_by_time_returns_chronological_order`            | `sort_by_time()` returns tasks earliest-first regardless of insertion order |
-| `test_generate_daily_schedule_sorts_by_priority_then_time` | High priority tasks appear before lower priority ones; time breaks ties     |
-| `test_generate_daily_schedule_is_sorted`                   | `generate_daily_schedule()` returns today's tasks in time order             |
-| `test_daily_task_schedules_next_day`                       | Completing a daily task auto-creates the next occurrence 1 day later        |
-| `test_weekly_task_schedules_next_week`                     | Completing a weekly task auto-creates the next occurrence 7 days later      |
-| `test_non_recurring_task_returns_none`                     | Completing a one-time task returns `None` (no follow-up created)            |
-| `test_add_task_detects_overlap`                            | Overlapping tasks trigger a `CONFLICT` warning and are not added            |
-| `test_add_task_no_conflict_when_sequential`                | Back-to-back tasks with no overlap are both added successfully              |
-| `test_scheduler_handles_pet_with_no_tasks`                 | A pet with zero tasks does not crash `generate_daily_schedule`              |
+| # | Test | What it verifies |
+|---|------|-----------------|
+| 1 | `test_task_completion_changes_status` | `complete()` flips status from `pending` to `completed` |
+| 2 | `test_add_task_increases_pet_task_count` | Adding a task to a pet increments its task list |
+| 3 | `test_sort_by_time_returns_chronological_order` | `sort_by_time()` returns tasks earliest-first regardless of insertion order |
+| 4a | `test_generate_daily_schedule_sorts_by_priority_then_time` | High priority tasks appear before lower priority ones; time breaks ties |
+| 4b | `test_generate_daily_schedule_sorts_by_time_when_priority_equal` | When tasks share the same priority, they are sorted by scheduled time |
+| 5 | `test_daily_task_schedules_next_day` | Completing a daily task auto-creates the next occurrence 1 day later |
+| 6 | `test_weekly_task_schedules_next_week` | Completing a weekly task auto-creates the next occurrence 7 days later |
+| 7 | `test_non_recurring_task_returns_none` | Completing a one-time task returns `None` (no follow-up created) |
+| 8 | `test_add_task_detects_overlap` | Overlapping tasks trigger a `CONFLICT` warning and are not added |
+| 9 | `test_add_task_no_conflict_when_sequential` | Back-to-back tasks with no overlap are both added successfully |
+| 10 | `test_scheduler_handles_pet_with_no_tasks` | A pet with zero tasks does not crash `generate_daily_schedule` |
 
 ### Confidence level
 

@@ -66,6 +66,8 @@ Yes, several changes were made during the design review — some suggested by AI
 
 5. **Added setters for `Task.assigned_pet` and `Scheduler.owner`** — AI initially omitted setters for these, but I challenged this. A task could be reassigned to a different pet, and a scheduler may need to switch owners for flexibility. After discussion, setters were added for both.
 
+6. **Updated `generate_daily_schedule()` to sort by priority first** — As part of Challenge 3, I extended the sort logic to use a tuple key: priority rank (high=0, medium=1, low=2) as the primary sort, scheduled time as the tiebreaker. This makes the daily plan more actionable — urgent tasks always surface to the top regardless of when they are scheduled.
+
 ---
 
 ## 2. Scheduling Logic and Tradeoffs
@@ -119,16 +121,16 @@ Yes, several changes were made during the design review — some suggested by AI
 - What behaviors did you test?
 - Why were these tests important?
 
-  The suite covers five categories: task lifecycle (`complete()` flips status from `pending` to `completed`), sorting correctness (`sort_by_time` and `generate_daily_schedule` return tasks in chronological order regardless of insertion order), recurrence logic (daily → +1 day, weekly → +7 days, none → `None` with no follow-up), conflict detection (overlapping tasks are blocked and not added, sequential tasks both pass), and an edge case (a pet with zero tasks does not crash `generate_daily_schedule`).
+  The suite covers six categories: task lifecycle (`complete()` flips status from `pending` to `completed`), priority-based sorting (`generate_daily_schedule` returns high priority tasks first, using time as a tiebreaker), time-based sorting (`sort_by_time` and `generate_daily_schedule` sort correctly when priorities are equal), recurrence logic (daily → +1 day, weekly → +7 days, none → `None` with no follow-up), conflict detection (overlapping tasks are blocked and not added, sequential tasks both pass), and an edge case (a pet with zero tasks does not crash `generate_daily_schedule`).
 
-  These were important because they target the three features that required the most algorithmic logic — sorting, recurrence, and conflict detection — and confirm the system fails gracefully on empty input rather than raising unexpected exceptions.
+  These were important because they target the four features that required the most algorithmic logic — priority scheduling, sorting, recurrence, and conflict detection — and confirm the system fails gracefully on empty input rather than raising unexpected exceptions.
 
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?
 - What edge cases would you test next if you had more time?
 
-  ★★★★★ — Confidence is high for the behaviors covered. All 10 tests pass.
+  ★★★★★ — Confidence is high for the behaviors covered. All 11 tests pass.
 
   Next edge cases to test would be: a task whose duration spans midnight (edge of `timedelta` arithmetic), two pets with tasks at the exact same time (confirming cross-pet conflict detection works correctly), and completing a recurring task that itself conflicts with an already-scheduled task on the next day.
 
@@ -146,7 +148,7 @@ Yes, several changes were made during the design review — some suggested by AI
 
 - If you had another iteration, what would you improve or redesign?
 
-  I would add priority-based conflict resolution: instead of simply blocking a conflicting task, the scheduler could compare priorities and either suggest a nearby open time slot or ask the owner whether to bump the lower-priority task. This would make the scheduler feel more like an intelligent assistant rather than a hard gate.
+  Priority-based scheduling was added in Challenge 3 — `generate_daily_schedule()` now surfaces high priority tasks first. The next step would be priority-based conflict resolution: instead of simply blocking a conflicting task, the scheduler could compare priorities and either suggest a nearby open time slot or ask the owner whether to bump the lower-priority task. This would make the scheduler feel more like an intelligent assistant rather than a hard gate.
 
   I would also add a "Mark Complete" button in the UI so the recurrence feature is fully visible to the user — right now frequency can be set but the auto-scheduling of the next occurrence is only verifiable through the test suite, not the app itself.
 

@@ -97,12 +97,18 @@ Yes, several changes were made during the design review — some suggested by AI
 **a. How you used AI**
 
 - How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
+
+  AI tools (Claude Code) were used across several roles: **design brainstorming** (reviewing the initial UML and identifying gaps like the missing `tasks` attribute on `Pet`), **code generation** (drafting initial test stubs), and **refactoring** (asking whether `get_conflicting_task` should be public or private and why).
+
 - What kinds of prompts or questions were most helpful?
+  The most helpful prompt pattern was asking **"why"** questions rather than just "fix this" — for example: _"Why would removing the duplicate task list from Scheduler improve the design?"_ This forced a reasoned explanation I could evaluate rather than blindly accepting a code change.
 
 **b. Judgment and verification**
 
 - Describe one moment where you did not accept an AI suggestion as-is.
 - How did you evaluate or verify what the AI suggested?
+
+  Copilot initially omitted setters for `Task.assigned_pet` and `Scheduler.owner`, reasoning that these associations rarely change after creation. I challenged this because a task could be reassigned to a different pet, and a scheduler might need to switch owners. I verified by tracing how the object graph would need to mutate across real use cases, then overrode the suggestion and added both setters.
 
 ---
 
@@ -113,10 +119,18 @@ Yes, several changes were made during the design review — some suggested by AI
 - What behaviors did you test?
 - Why were these tests important?
 
+  The suite covers five categories: task lifecycle (`complete()` flips status from `pending` to `completed`), sorting correctness (`sort_by_time` and `generate_daily_schedule` return tasks in chronological order regardless of insertion order), recurrence logic (daily → +1 day, weekly → +7 days, none → `None` with no follow-up), conflict detection (overlapping tasks are blocked and not added, sequential tasks both pass), and an edge case (a pet with zero tasks does not crash `generate_daily_schedule`).
+
+  These were important because they target the three features that required the most algorithmic logic — sorting, recurrence, and conflict detection — and confirm the system fails gracefully on empty input rather than raising unexpected exceptions.
+
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?
 - What edge cases would you test next if you had more time?
+
+  ★★★★★ — Confidence is high for the behaviors covered. All 10 tests pass.
+
+  Next edge cases to test would be: a task whose duration spans midnight (edge of `timedelta` arithmetic), two pets with tasks at the exact same time (confirming cross-pet conflict detection works correctly), and completing a recurring task that itself conflicts with an already-scheduled task on the next day.
 
 ---
 
@@ -126,10 +140,18 @@ Yes, several changes were made during the design review — some suggested by AI
 
 - What part of this project are you most satisfied with?
 
+  The encapsulation design worked well throughout the project. Making all attributes private and routing all mutations through dedicated methods (e.g., `complete()` instead of a raw status setter) meant that each method's behavior was easy to reason about in isolation and test independently. The decision to make `Scheduler` the single entry point for adding tasks — delegating storage to `Pet.add_task()` only after conflict checking — prevented the kind of data integrity bugs that would have been hard to trace later.
+
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
 
+  I would add priority-based conflict resolution: instead of simply blocking a conflicting task, the scheduler could compare priorities and either suggest a nearby open time slot or ask the owner whether to bump the lower-priority task. This would make the scheduler feel more like an intelligent assistant rather than a hard gate.
+
+  I would also add a "Mark Complete" button in the UI so the recurrence feature is fully visible to the user — right now frequency can be set but the auto-scheduling of the next occurrence is only verifiable through the test suite, not the app itself.
+
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+
+  The most important thing I learned is that **AI is a fast executor but a poor architect without direction**. Left unconstrained, AI generated reasonable-looking code that had subtle design problems — duplicate state, missing encapsulation, ambiguous responsibilities. The value I added as the lead architect was not writing more code, but asking the right questions: *Who owns this data? What happens if this method is called out of order? What breaks if I skip this step?* AI accelerated the build, but the design decisions that made the system correct and maintainable came from deliberate human judgment at each step.

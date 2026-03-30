@@ -41,6 +41,7 @@ classDiagram
         -assigned_pet: Pet
         -scheduled_time: datetime
         -status: str
+        -frequency: str
         +get_title() str
         +set_title(title)
         +get_priority() str
@@ -54,6 +55,8 @@ classDiagram
         +get_status() str
         +complete()
         +is_completed() bool
+        +get_frequency() str
+        +set_frequency(frequency)
     }
 
     class Scheduler {
@@ -61,9 +64,13 @@ classDiagram
         +get_owner() Owner
         +set_owner(owner)
         +get_tasks_for_day(date) list
-        +add_task(task)
-        -check_conflicts(task, time) bool
+        +add_task(task) str
+        -__get_conflicting_task(task, time) Task
         +generate_daily_schedule(date) list
+        +mark_task_complete(task) Task
+        +sort_by_time(tasks) list
+        +filter_by_pet(tasks, pet_name) list
+        +filter_by_status(tasks, status) list
     }
 
     Owner "1" *-- "*" Pet : owns

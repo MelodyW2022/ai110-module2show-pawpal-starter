@@ -42,6 +42,32 @@ pip install -r requirements.txt
 6. Connect your logic to the Streamlit UI in `app.py`.
 7. Refine UML so it matches what you actually built.
 
+## System Architecture
+
+The class diagram below shows how `Owner`, `Pet`, `Task`, and `Scheduler` relate to each other in the final implementation.
+
+<a href="assets/uml_final.png" target="_blank"><img src="assets/uml_final.png" title="PawPal+ UML Class Diagram" width="100%" alt="UML Class Diagram" /></a>
+
+## 📸 Demo
+
+**Adding a pet:**
+
+<a href="assets/add_a_pet.png" target="_blank"><img src="assets/add_a_pet.png" title="Add a Pet" width="100%" alt="Add a Pet" /></a>
+
+**Adding tasks — success and conflict warning:**
+
+<a href="assets/add_task_1_at_8am_20min_success.png" target="_blank"><img src="assets/add_task_1_at_8am_20min_success.png" title="Add Task 1 Success" width="100%" alt="Add Task 1 Success" /></a>
+
+<a href="assets/add_task_2_at_815am_10min_conflict.png" target="_blank"><img src="assets/add_task_2_at_815am_10min_conflict.png" title="Add Task 2 Conflict" width="100%" alt="Add Task 2 Conflict" /></a>
+
+<a href="assets/add_task_3_at_830am_10min_success.png" target="_blank"><img src="assets/add_task_3_at_830am_10min_success.png" title="Add Task 3 Success" width="100%" alt="Add Task 3 Success" /></a>
+
+<a href="assets/add_task_4_at_745_5min_success.png" target="_blank"><img src="assets/add_task_4_at_745_5min_success.png" title="Add Task 4 Success" width="100%" alt="Add Task 4 Success" /></a>
+
+**Generated schedule sorted by time:**
+
+<a href="assets/generate_schedule.png" target="_blank"><img src="assets/generate_schedule.png" title="Generated Schedule" width="100%" alt="Generated Schedule" /></a>
+
 ## Smarter Scheduling
 
 PawPal+ includes algorithmic features that make scheduling more intelligent:

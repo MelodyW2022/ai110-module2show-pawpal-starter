@@ -194,3 +194,15 @@ class Scheduler:
     def generate_daily_schedule(self, date: datetime) -> list[Task]:
         """Return tasks for the given date sorted by scheduled time."""
         return sorted(self.get_tasks_for_day(date), key=lambda t: t.get_scheduled_time())
+
+    def sort_by_time(self, tasks: list[Task]) -> list[Task]:
+        """Return a new list of tasks sorted by scheduled time (earliest first)."""
+        return sorted(tasks, key=lambda t: t.get_scheduled_time())
+
+    def filter_by_pet(self, tasks: list[Task], pet_name: str) -> list[Task]:
+        """Return only the tasks assigned to the pet with the given name."""
+        return [t for t in tasks if t.get_assigned_pet().get_name() == pet_name]
+
+    def filter_by_status(self, tasks: list[Task], status: str) -> list[Task]:
+        """Return only the tasks matching the given status ('pending' or 'completed')."""
+        return [t for t in tasks if t.get_status() == status]

@@ -1,8 +1,16 @@
 import streamlit as st
+from pawpal_system import Owner, Pet, Task, Scheduler
 
 st.set_page_config(page_title="PawPal+", page_icon="🐾", layout="centered")
 
 st.title("🐾 PawPal+")
+
+# --- Session State Initialization ---
+if "owner" not in st.session_state:
+    st.session_state.owner = Owner("Jordan")
+
+if "scheduler" not in st.session_state:
+    st.session_state.scheduler = Scheduler(st.session_state.owner)
 
 st.markdown(
     """
